@@ -1,6 +1,6 @@
-package com.projetoPagSimples.pag.domain.usuario.entity;
+package com.projeto_backend.ClinMed.domain.usuario.entity;
 
-import com.projetoPagSimples.pag.domain.usuario.enums.StatusUsuario;
+import com.projeto_backend.ClinMed.domain.usuario.enums.StatusUsuario;
 import jakarta.persistence.*;
 
 @Entity

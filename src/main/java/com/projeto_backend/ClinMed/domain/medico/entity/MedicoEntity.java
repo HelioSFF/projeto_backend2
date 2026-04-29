@@ -1,13 +1,13 @@
-package com.projetoPagSimples.pag.domain.metodo_pagamento.entity;
+package com.projeto_backend.ClinMed.domain.medico.entity;
 
-import com.projetoPagSimples.pag.domain.metodo_pagamento.enums.TipoPagamento;
-import com.projetoPagSimples.pag.domain.usuario.entity.UsuarioEntity;
+import com.projeto_backend.ClinMed.domain.medico.enums.EspecialidadeMedica;
+import com.projeto_backend.ClinMed.domain.usuario.entity.UsuarioEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "TB_METODO_PAGAMENTO")
 
-public class Metodo_PagamentoEntity {
+public class MedicoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +15,7 @@ public class Metodo_PagamentoEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TipoPagamento tipo;
+    private EspecialidadeMedica tipo;
 
     @Column(name="detalhes")
     private String detalhes;
@@ -32,11 +32,11 @@ public class Metodo_PagamentoEntity {
         this.id = id;
     }
 
-    public TipoPagamento getTipo() {
+    public EspecialidadeMedica getTipo() {
         return tipo;
     }
 
-    public void setTipo(TipoPagamento tipo) {
+    public void setTipo(EspecialidadeMedica tipo) {
         this.tipo = tipo;
     }
 

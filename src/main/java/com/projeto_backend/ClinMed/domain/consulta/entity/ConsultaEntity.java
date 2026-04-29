@@ -1,15 +1,14 @@
-package com.projetoPagSimples.pag.domain.transacao.entity;
+package com.projeto_backend.ClinMed.domain.consulta.entity;
 
 
-import com.projetoPagSimples.pag.domain.pagamento.entity.PagamentoEntity;
+import com.projeto_backend.ClinMed.domain.paciente.entity.PacienteEntity;
 import jakarta.persistence.*;
 
-import javax.annotation.processing.Generated;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "TB_TRANSACAO")
-public class TransacaoEntity {
+public class ConsultaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +19,7 @@ public class TransacaoEntity {
 
     @OneToOne
     @JoinColumn(name = "id_pagamento")
-    private PagamentoEntity pagamento;
+    private PacienteEntity pagamento;
 
 
 }
