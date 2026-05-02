@@ -5,7 +5,7 @@ import com.projeto_backend.ClinMed.domain.usuario.entity.UsuarioEntity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "TB_METODO_PAGAMENTO")
+@Table(name = "TB_MEDICO")
 
 public class MedicoEntity {
 
@@ -15,14 +15,22 @@ public class MedicoEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EspecialidadeMedica tipo;
+    private EspecialidadeMedica especialidade;
 
     @Column(name="detalhes")
     private String detalhes;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario")
+    @OneToOne
+    @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private UsuarioEntity usuario;
+
+    public MedicoEntity(EspecialidadeMedica especialidade, String detalhes, UsuarioEntity usuario) {
+        this.especialidade = especialidade;
+        this.detalhes = detalhes;
+        this.usuario = usuario;
+    }
+
+    public MedicoEntity(){}
 
     public Long getId() {
         return id;
@@ -32,12 +40,12 @@ public class MedicoEntity {
         this.id = id;
     }
 
-    public EspecialidadeMedica getTipo() {
-        return tipo;
+    public EspecialidadeMedica getEspecialidade() {
+        return especialidade;
     }
 
-    public void setTipo(EspecialidadeMedica tipo) {
-        this.tipo = tipo;
+    public void setEspecialidade(EspecialidadeMedica especialidade) {
+        this.especialidade = especialidade;
     }
 
     public String getDetalhes() {

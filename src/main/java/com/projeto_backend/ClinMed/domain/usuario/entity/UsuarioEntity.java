@@ -24,6 +24,8 @@ public class UsuarioEntity {
     @Column(nullable = false)
     private StatusUsuario status;
 
+
+
     public Long getId() {
         return id;
     }
