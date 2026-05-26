@@ -1,21 +1,20 @@
 package com.projeto_backend.ClinMed.domain.medico.entity;
 
-import com.projeto_backend.ClinMed.domain.medico.enums.EspecialidadeMedica;
+import com.projeto_backend.ClinMed.domain.especialidade.entity.EspecialidadeEntity;
 import com.projeto_backend.ClinMed.domain.usuario.entity.UsuarioEntity;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "TB_MEDICO")
-
 public class MedicoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EspecialidadeMedica especialidade;
+    @ManyToOne
+    @JoinColumn(name = "especialidade_id", nullable = false)
+    private EspecialidadeEntity especialidade;
 
     @Column(name="detalhes")
     private String detalhes;
@@ -24,7 +23,7 @@ public class MedicoEntity {
     @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private UsuarioEntity usuario;
 
-    public MedicoEntity(EspecialidadeMedica especialidade, String detalhes, UsuarioEntity usuario) {
+    public MedicoEntity(EspecialidadeEntity especialidade, String detalhes, UsuarioEntity usuario) {
         this.especialidade = especialidade;
         this.detalhes = detalhes;
         this.usuario = usuario;
@@ -40,11 +39,11 @@ public class MedicoEntity {
         this.id = id;
     }
 
-    public EspecialidadeMedica getEspecialidade() {
+    public EspecialidadeEntity getEspecialidade() {
         return especialidade;
     }
 
-    public void setEspecialidade(EspecialidadeMedica especialidade) {
+    public void setEspecialidade(EspecialidadeEntity especialidade) {
         this.especialidade = especialidade;
     }
 
