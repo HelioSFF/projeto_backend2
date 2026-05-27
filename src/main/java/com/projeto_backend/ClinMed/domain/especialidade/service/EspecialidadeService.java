@@ -1,5 +1,7 @@
 package com.projeto_backend.ClinMed.domain.especialidade.service;
 
+import com.projeto_backend.ClinMed.domain.especialidade.dto.EspecialidadeRequestDTO;
+import com.projeto_backend.ClinMed.domain.especialidade.dto.EspecialidadeResponseDTO;
 import com.projeto_backend.ClinMed.domain.especialidade.entity.EspecialidadeEntity;
 import com.projeto_backend.ClinMed.domain.especialidade.repository.EspecialidadeRepository;
 import com.projeto_backend.ClinMed.domain.medico.repository.MedicoRepository;
@@ -22,57 +24,58 @@ public class EspecialidadeService {
     @Lazy
     private MedicoRepository medicoRepository;
 
-    // Retorna a lista de todas as especialidades do banco
     @Transactional(readOnly = true)
-    public List<EspecialidadeEntity> listarTodas() {
-        return especialidadeRepository.findAll();
+    public List<EspecialidadeResponseDTO> listarTodas() {
+        return especialidadeRepository.findAll().stream()
+                .map(e -> new EspecialidadeResponseDTO(e.getId(), e.getNome(), e.getDescricao()))
+                .toList();
     }
 
-    // Busca uma especialidade pelo ID, se nao achar lanca excecao
     @Transactional(readOnly = true)
-    public EspecialidadeEntity buscarPorId(Long id) {
+    public EspecialidadeResponseDTO buscarPorId(Long id) {
+        EspecialidadeEntity e = buscarEntidadePorId(id);
+        return new EspecialidadeResponseDTO(e.getId(), e.getNome(), e.getDescricao());
+    }
+
+    public EspecialidadeEntity buscarEntidadePorId(Long id) {
         return especialidadeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Especialidade nao encontrada com o ID: " + id));
     }
 
-    // Cria uma nova especialidade
     @Transactional
-    public EspecialidadeEntity criar(EspecialidadeEntity especialidade) {
-        // Verifica se ja existe especialidade com o mesmo nome
-        if (especialidadeRepository.findByNome(especialidade.getNome()).isPresent()) {
+    public EspecialidadeResponseDTO criar(EspecialidadeRequestDTO dto) {
+        if (especialidadeRepository.findByNome(dto.getNome()).isPresent()) {
             throw new BusinessException("Especialidade com este nome ja cadastrada.");
         }
-        return especialidadeRepository.save(especialidade);
+        EspecialidadeEntity especialidade = new EspecialidadeEntity();
+        especialidade.setNome(dto.getNome());
+        especialidade.setDescricao(dto.getDescricao());
+        EspecialidadeEntity salva = especialidadeRepository.save(especialidade);
+        return new EspecialidadeResponseDTO(salva.getId(), salva.getNome(), salva.getDescricao());
     }
 
-    // Atualiza os dados de uma especialidade existente
     @Transactional
-    public EspecialidadeEntity atualizar(Long id, EspecialidadeEntity dadosAtualizados) {
-        EspecialidadeEntity especialidade = buscarPorId(id);
-
-        // Nao permite nome duplicado para outra especialidade
-        especialidadeRepository.findByNome(dadosAtualizados.getNome())
+    public EspecialidadeResponseDTO atualizar(Long id, EspecialidadeRequestDTO dto) {
+        EspecialidadeEntity especialidade = buscarEntidadePorId(id);
+        especialidadeRepository.findByNome(dto.getNome())
                 .filter(e -> !e.getId().equals(id))
-                .ifPresent(e -> {
-                    throw new BusinessException("Especialidade com este nome ja cadastrada.");
-                });
-
-        especialidade.setNome(dadosAtualizados.getNome());
-        especialidade.setDescricao(dadosAtualizados.getDescricao());
-
-        return especialidadeRepository.save(especialidade);
+                .ifPresent(e -> { throw new BusinessException("Especialidade com este nome ja cadastrada."); });
+        especialidade.setNome(dto.getNome());
+        especialidade.setDescricao(dto.getDescricao());
+        EspecialidadeEntity salva = especialidadeRepository.save(especialidade);
+        return new EspecialidadeResponseDTO(salva.getId(), salva.getNome(), salva.getDescricao());
     }
 
-    // Deleta uma especialidade pelo ID
     @Transactional
     public void deletar(Long id) {
-        EspecialidadeEntity especialidade = buscarPorId(id);
+        EspecialidadeEntity especialidade = buscarEntidadePorId(id);
 
         // Regra de negocio: nao permite excluir especialidade que tem medicos vinculados
         if (medicoRepository.existsByEspecialidadeId(id)) {
-            throw new BusinessException("Nao e possivel excluir a especialidade pois existem medicos vinculados a ela.");
+            throw new BusinessException("Não é possível excluir a especialidade pois existem médicos vinculados à ela.");
         }
 
         especialidadeRepository.delete(especialidade);
     }
+
 }

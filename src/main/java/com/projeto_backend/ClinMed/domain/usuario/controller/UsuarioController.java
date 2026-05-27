@@ -1,7 +1,9 @@
 package com.projeto_backend.ClinMed.domain.usuario.controller;
 
-import com.projeto_backend.ClinMed.domain.usuario.entity.UsuarioEntity;
+import com.projeto_backend.ClinMed.domain.usuario.dto.UsuarioRequestDTO;
+import com.projeto_backend.ClinMed.domain.usuario.dto.UsuarioResponseDTO;
 import com.projeto_backend.ClinMed.domain.usuario.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,26 +20,25 @@ public class UsuarioController {
 
     // Retorna todos os usuarios
     @GetMapping
-    public ResponseEntity<List<UsuarioEntity>> listarTodos() {
+    public ResponseEntity<List<UsuarioResponseDTO>> listarTodos() {
         return ResponseEntity.ok(usuarioService.listarTodos());
     }
 
     // Busca usuario por id
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioEntity> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(usuarioService.buscarPorId(id));
     }
 
     // Cadastra um novo usuario
     @PostMapping
-    public ResponseEntity<UsuarioEntity> criar(@RequestBody UsuarioEntity request) {
-        UsuarioEntity response = usuarioService.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody @Valid UsuarioRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.criar(request));
     }
 
     // Altera dados de um usuario
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioEntity> atualizar(@PathVariable Long id, @RequestBody UsuarioEntity request) {
+    public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid UsuarioRequestDTO request) {
         return ResponseEntity.ok(usuarioService.atualizar(id, request));
     }
 

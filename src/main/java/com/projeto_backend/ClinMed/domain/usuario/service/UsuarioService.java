@@ -1,5 +1,7 @@
 package com.projeto_backend.ClinMed.domain.usuario.service;
 
+import com.projeto_backend.ClinMed.domain.usuario.dto.UsuarioRequestDTO;
+import com.projeto_backend.ClinMed.domain.usuario.dto.UsuarioResponseDTO;
 import com.projeto_backend.ClinMed.domain.usuario.entity.UsuarioEntity;
 import com.projeto_backend.ClinMed.domain.usuario.repository.UsuarioRepository;
 import com.projeto_backend.ClinMed.domain.medico.repository.MedicoRepository;
@@ -24,57 +26,56 @@ public class UsuarioService {
 
     // Lista todos os usuarios do banco
     @Transactional(readOnly = true)
-    public List<UsuarioEntity> listarTodos() {
-        return usuarioRepository.findAll();
+    public List<UsuarioResponseDTO> listarTodos() {
+        return usuarioRepository.findAll().stream()
+                .map(u -> new UsuarioResponseDTO(u.getNome(), u.getEmail()))
+                .toList();
     }
 
-    // Busca usuario por id, lanca erro se nao existir
     @Transactional(readOnly = true)
-    public UsuarioEntity buscarPorId(Long id) {
+    public UsuarioResponseDTO buscarPorId(Long id) {
+        UsuarioEntity u = buscarEntidadePorId(id);
+        return new UsuarioResponseDTO(u.getNome(), u.getEmail());
+    }
+
+    public UsuarioEntity buscarEntidadePorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado com o ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com o ID: " + id));
     }
 
-    // Cria um novo usuario
     @Transactional
-    public UsuarioEntity criar(UsuarioEntity usuario) {
-        // Valida se o email ja esta cadastrado
-        if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
-            throw new BusinessException("E-mail ja cadastrado no sistema.");
+    public UsuarioResponseDTO criar(UsuarioRequestDTO dto) {
+        if (usuarioRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new BusinessException("E-mail já cadastrado no sistema.");
         }
-        return usuarioRepository.save(usuario);
+        UsuarioEntity usuario = new UsuarioEntity();
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+        usuario.setSenha(dto.getSenha());
+        UsuarioEntity salvo = usuarioRepository.save(usuario);
+        return new UsuarioResponseDTO(salvo.getNome(), salvo.getEmail());
     }
 
-    // Atualiza um usuario existente
     @Transactional
-    public UsuarioEntity atualizar(Long id, UsuarioEntity dadosNovos) {
-        UsuarioEntity usuario = buscarPorId(id);
-
-        // Nao deixa cadastrar email repetido de outra pessoa
-        usuarioRepository.findByEmail(dadosNovos.getEmail())
+    public UsuarioResponseDTO atualizar(Long id, UsuarioRequestDTO dto) {
+        UsuarioEntity usuario = buscarEntidadePorId(id);
+        usuarioRepository.findByEmail(dto.getEmail())
                 .filter(u -> !u.getId().equals(id))
-                .ifPresent(u -> {
-                    throw new BusinessException("E-mail ja esta sendo utilizado por outro usuario.");
-                });
-
-        usuario.setNome(dadosNovos.getNome());
-        usuario.setEmail(dadosNovos.getEmail());
-        usuario.setSenha(dadosNovos.getSenha());
-        usuario.setStatus(dadosNovos.getStatus());
-
-        return usuarioRepository.save(usuario);
+                .ifPresent(u -> { throw new BusinessException("E-mail já está sendo utilizado por outro usuário."); });
+        usuario.setNome(dto.getNome());
+        usuario.setEmail(dto.getEmail());
+        usuario.setSenha(dto.getSenha());
+        UsuarioEntity salvo = usuarioRepository.save(usuario);
+        return new UsuarioResponseDTO(salvo.getNome(), salvo.getEmail());
     }
 
-    // Deleta um usuario do banco
     @Transactional
     public void deletar(Long id) {
-        UsuarioEntity usuario = buscarPorId(id);
-
-        // Regra de negocio: nao permite deletar se o usuario for medico e estiver cadastrado na TB_MEDICO
+        UsuarioEntity usuario = buscarEntidadePorId(id);
         if (medicoRepository.existsByUsuarioId(id)) {
-            throw new BusinessException("Nao e possivel excluir o usuario porque ele esta vinculado a um cadastro de medico.");
+            throw new BusinessException("Não é possível excluir o usuário porque ele está vinculado a um cadastro de médico.");
         }
-
         usuarioRepository.delete(usuario);
     }
 }
+

@@ -3,6 +3,8 @@ package com.projeto_backend.ClinMed.domain.medico.service;
 import com.projeto_backend.ClinMed.domain.consulta.repository.ConsultaRepository;
 import com.projeto_backend.ClinMed.domain.especialidade.entity.EspecialidadeEntity;
 import com.projeto_backend.ClinMed.domain.especialidade.service.EspecialidadeService;
+import com.projeto_backend.ClinMed.domain.medico.dto.MedicoRequestDTO;
+import com.projeto_backend.ClinMed.domain.medico.dto.MedicoResponseDTO;
 import com.projeto_backend.ClinMed.domain.medico.entity.MedicoEntity;
 import com.projeto_backend.ClinMed.domain.medico.repository.MedicoRepository;
 import com.projeto_backend.ClinMed.domain.usuario.entity.UsuarioEntity;
@@ -35,90 +37,66 @@ public class MedicoService {
 
     // Retorna todos os medicos
     @Transactional(readOnly = true)
-    public List<MedicoEntity> listarTodos() {
-        return medicoRepository.findAll();
+    public List<MedicoResponseDTO> listarTodos() {
+        return medicoRepository.findAll().stream()
+                .map(m -> new MedicoResponseDTO(m.getEspecialidade().getId(), m.getDetalhes(), m.getUsuario().getId()))
+                .toList();
     }
 
     // Busca medico pelo id
     @Transactional(readOnly = true)
-    public MedicoEntity buscarPorId(Long id) {
+    public MedicoResponseDTO buscarPorId(Long id) {
+        MedicoEntity m = buscarEntidadePorId(id);
+        return new MedicoResponseDTO(m.getEspecialidade().getId(), m.getDetalhes(), m.getUsuario().getId());
+    }
+
+    public MedicoEntity buscarEntidadePorId(Long id) {
         return medicoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Medico nao encontrado com o ID: " + id));
     }
-
     // Cria um novo medico
     @Transactional
-    public MedicoEntity criar(MedicoEntity medico) {
-        // Valida se informou o usuario e a especialidade
-        if (medico.getUsuario() == null || medico.getUsuario().getId() == null) {
-            throw new BusinessException("E necessario informar o ID do usuario.");
-        }
-        if (medico.getEspecialidade() == null || medico.getEspecialidade().getId() == null) {
-            throw new BusinessException("E necessario informar o ID da especialidade.");
-        }
+    public MedicoResponseDTO criar(MedicoRequestDTO dto) {
 
-        UsuarioEntity usuario = usuarioService.buscarPorId(medico.getUsuario().getId());
-
-        // Valida perfil de medico
+        UsuarioEntity usuario = usuarioService.buscarEntidadePorId(dto.getUsuarioId());
         if (usuario.getStatus() != StatusUsuario.MEDICO) {
             throw new BusinessException("O usuario vinculado deve ter o perfil de MEDICO.");
         }
-
-        // Valida se ja e medico
-        if (medicoRepository.existsByUsuarioId(medico.getUsuario().getId())) {
+        if (medicoRepository.existsByUsuarioId(dto.getUsuarioId())) {
             throw new BusinessException("Este usuario ja esta vinculado a um cadastro de medico.");
         }
-
-        EspecialidadeEntity especialidade = especialidadeService.buscarPorId(medico.getEspecialidade().getId());
-
-        medico.setUsuario(usuario);
-        medico.setEspecialidade(especialidade);
-
-        return medicoRepository.save(medico);
+        EspecialidadeEntity especialidade = especialidadeService.buscarEntidadePorId(dto.getEspecialidadeId());
+        MedicoEntity medico = new MedicoEntity(especialidade, dto.getDetalhes(), usuario);
+        MedicoEntity salvo = medicoRepository.save(medico);
+        return new MedicoResponseDTO(salvo.getEspecialidade().getId(), salvo.getDetalhes(), salvo.getUsuario().getId());
     }
 
-    // Atualiza dados de um medico
     @Transactional
-    public MedicoEntity atualizar(Long id, MedicoEntity dadosNovos) {
-        MedicoEntity medico = buscarPorId(id);
-
-        if (dadosNovos.getUsuario() == null || dadosNovos.getUsuario().getId() == null) {
-            throw new BusinessException("E necessario informar o ID do usuario.");
-        }
-        if (dadosNovos.getEspecialidade() == null || dadosNovos.getEspecialidade().getId() == null) {
-            throw new BusinessException("E necessario informar o ID da especialidade.");
-        }
-
-        UsuarioEntity usuario = usuarioService.buscarPorId(dadosNovos.getUsuario().getId());
+    public MedicoResponseDTO atualizar(Long id, MedicoRequestDTO dto) {
+        MedicoEntity medico = buscarEntidadePorId(id);
+        UsuarioEntity usuario = usuarioService.buscarEntidadePorId(dto.getUsuarioId());
         if (usuario.getStatus() != StatusUsuario.MEDICO) {
             throw new BusinessException("O usuario vinculado deve ter o perfil de MEDICO.");
         }
-
-        medicoRepository.findByUsuarioId(dadosNovos.getUsuario().getId())
+        medicoRepository.findByUsuarioId(dto.getUsuarioId())
                 .filter(m -> !m.getId().equals(id))
                 .ifPresent(m -> {
                     throw new BusinessException("Este usuario ja esta vinculado a um outro cadastro de medico.");
                 });
-
-        EspecialidadeEntity especialidade = especialidadeService.buscarPorId(dadosNovos.getEspecialidade().getId());
-
+        EspecialidadeEntity especialidade = especialidadeService.buscarEntidadePorId(dto.getEspecialidadeId());
         medico.setUsuario(usuario);
         medico.setEspecialidade(especialidade);
-        medico.setDetalhes(dadosNovos.getDetalhes());
-
-        return medicoRepository.save(medico);
+        medico.setDetalhes(dto.getDetalhes());
+        MedicoEntity salvo = medicoRepository.save(medico);
+        return new MedicoResponseDTO(salvo.getEspecialidade().getId(), salvo.getDetalhes(), salvo.getUsuario().getId());
     }
 
-    // Deleta um medico
     @Transactional
     public void deletar(Long id) {
-        MedicoEntity medico = buscarPorId(id);
-
-        // Regra de negocio: nao permite excluir medico que ja possui consultas cadastradas
+        MedicoEntity medico = buscarEntidadePorId(id);
         if (consultaRepository.existsByMedicoId(id)) {
             throw new BusinessException("Nao e possivel excluir o medico pois ele possui consultas cadastradas.");
         }
-
         medicoRepository.delete(medico);
     }
 }
