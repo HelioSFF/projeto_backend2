@@ -1,5 +1,6 @@
 package com.projeto_backend.ClinMed.domain.consulta.repository;
 
+import com.projeto_backend.ClinMed.domain.consulta.dto.ConsultaResponseDTO;
 import com.projeto_backend.ClinMed.domain.consulta.entity.ConsultaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,7 +1,9 @@
 package com.projeto_backend.ClinMed.domain.paciente.controller;
 
-import com.projeto_backend.ClinMed.domain.paciente.entity.PacienteEntity;
+import com.projeto_backend.ClinMed.domain.paciente.dto.PacienteRequestDTO;
+import com.projeto_backend.ClinMed.domain.paciente.dto.PacienteResponseDTO;
 import com.projeto_backend.ClinMed.domain.paciente.service.PacienteService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,26 +20,25 @@ public class PacienteController {
 
     // Lista todos os pacientes
     @GetMapping
-    public ResponseEntity<List<PacienteEntity>> listarTodos() {
+    public ResponseEntity<List<PacienteResponseDTO>> listarTodos() {
         return ResponseEntity.ok(pacienteService.listarTodos());
     }
 
     // Busca paciente pelo ID
     @GetMapping("/{id}")
-    public ResponseEntity<PacienteEntity> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<PacienteResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(pacienteService.buscarPorId(id));
     }
 
     // Cadastra um novo paciente
     @PostMapping
-    public ResponseEntity<PacienteEntity> criar(@RequestBody PacienteEntity request) {
-        PacienteEntity response = pacienteService.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<PacienteResponseDTO> criar(@RequestBody @Valid PacienteRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteService.criar(request));
     }
 
     // Altera dados de um paciente
     @PutMapping("/{id}")
-    public ResponseEntity<PacienteEntity> atualizar(@PathVariable Long id, @RequestBody PacienteEntity request) {
+    public ResponseEntity<PacienteResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid PacienteRequestDTO request) {
         return ResponseEntity.ok(pacienteService.atualizar(id, request));
     }
 

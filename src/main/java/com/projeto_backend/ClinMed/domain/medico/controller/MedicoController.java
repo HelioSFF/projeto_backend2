@@ -1,7 +1,9 @@
 package com.projeto_backend.ClinMed.domain.medico.controller;
 
-import com.projeto_backend.ClinMed.domain.medico.entity.MedicoEntity;
+import com.projeto_backend.ClinMed.domain.medico.dto.MedicoRequestDTO;
+import com.projeto_backend.ClinMed.domain.medico.dto.MedicoResponseDTO;
 import com.projeto_backend.ClinMed.domain.medico.service.MedicoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,26 +20,25 @@ public class MedicoController {
 
     // Retorna todos os medicos
     @GetMapping
-    public ResponseEntity<List<MedicoEntity>> listarTodos() {
+    public ResponseEntity<List<MedicoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(medicoService.listarTodos());
     }
 
     // Busca medico por ID
     @GetMapping("/{id}")
-    public ResponseEntity<MedicoEntity> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<MedicoResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(medicoService.buscarPorId(id));
     }
 
     // Cadastra um novo medico
     @PostMapping
-    public ResponseEntity<MedicoEntity> criar(@RequestBody MedicoEntity request) {
-        MedicoEntity response = medicoService.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<MedicoResponseDTO> criar(@RequestBody @Valid MedicoRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(medicoService.criar(request));
     }
 
     // Altera os dados de um medico
     @PutMapping("/{id}")
-    public ResponseEntity<MedicoEntity> atualizar(@PathVariable Long id, @RequestBody MedicoEntity request) {
+    public ResponseEntity<MedicoResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid MedicoRequestDTO request) {
         return ResponseEntity.ok(medicoService.atualizar(id, request));
     }
 

@@ -1,14 +1,18 @@
 package com.projeto_backend.ClinMed.domain.consulta.dto;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
 public class ConsultaRequestDTO {
 
     @NotNull(message = "A data e hora de inicio sao obrigatórias.")
+    @Future(message = "A consulta deve ser agendada para uma data futura.")
     private LocalDateTime dataHoraInicio;
 
+    @Size(max = 255, message = "O motivo deve ter no máximo 255 caracteres.")
     private String motivo;
 
     @NotNull(message = "O paciente é obrigatório.")

@@ -1,7 +1,9 @@
 package com.projeto_backend.ClinMed.domain.especialidade.controller;
 
-import com.projeto_backend.ClinMed.domain.especialidade.entity.EspecialidadeEntity;
+import com.projeto_backend.ClinMed.domain.especialidade.dto.EspecialidadeRequestDTO;
+import com.projeto_backend.ClinMed.domain.especialidade.dto.EspecialidadeResponseDTO;
 import com.projeto_backend.ClinMed.domain.especialidade.service.EspecialidadeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,26 +20,25 @@ public class EspecialidadeController {
 
     // Retorna todas as especialidades cadastrada
     @GetMapping
-    public ResponseEntity<List<EspecialidadeEntity>> listarTodas() {
+    public ResponseEntity<List<EspecialidadeResponseDTO>> listarTodas() {
         return ResponseEntity.ok(especialidadeService.listarTodas());
     }
 
     // Busca especialidade por ID
     @GetMapping("/{id}")
-    public ResponseEntity<EspecialidadeEntity> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<EspecialidadeResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(especialidadeService.buscarPorId(id));
     }
 
     // Cadastra uma nova especialidade
     @PostMapping
-    public ResponseEntity<EspecialidadeEntity> criar(@RequestBody EspecialidadeEntity request) {
-        EspecialidadeEntity response = especialidadeService.criar(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<EspecialidadeResponseDTO> criar(@RequestBody @Valid EspecialidadeRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(especialidadeService.criar(request));
     }
 
     // Altera dados de uma especialidade
     @PutMapping("/{id}")
-    public ResponseEntity<EspecialidadeEntity> atualizar(@PathVariable Long id, @RequestBody EspecialidadeEntity request) {
+    public ResponseEntity<EspecialidadeResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid EspecialidadeRequestDTO request) {
         return ResponseEntity.ok(especialidadeService.atualizar(id, request));
     }
 
