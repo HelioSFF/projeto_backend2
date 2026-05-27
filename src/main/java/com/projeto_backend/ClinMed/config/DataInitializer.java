@@ -35,6 +35,8 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        if (especialidadeRepository.count() > 0) return;
         // 1. Seed Specialties
         EspecialidadeEntity cardiologia = new EspecialidadeEntity();
         cardiologia.setNome("Cardiologia");
@@ -111,5 +113,6 @@ public class DataInitializer implements CommandLineRunner {
         pacienteSuspenso.setTelefone("11988888888");
         pacienteSuspenso.setStatus(StatusPaciente.SUSPENSO);
         pacienteRepository.save(pacienteSuspenso);
+
     }
 }

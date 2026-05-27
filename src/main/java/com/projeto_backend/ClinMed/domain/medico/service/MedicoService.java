@@ -39,7 +39,7 @@ public class MedicoService {
     @Transactional(readOnly = true)
     public List<MedicoResponseDTO> listarTodos() {
         return medicoRepository.findAll().stream()
-                .map(m -> new MedicoResponseDTO(m.getEspecialidade().getId(), m.getDetalhes(), m.getUsuario().getId()))
+                .map(m -> new MedicoResponseDTO(m.getEspecialidade().getId(), m.getDetalhes(), m.getUsuario().getId(), m.getUsuario().getNome()))
                 .toList();
     }
 
@@ -47,7 +47,7 @@ public class MedicoService {
     @Transactional(readOnly = true)
     public MedicoResponseDTO buscarPorId(Long id) {
         MedicoEntity m = buscarEntidadePorId(id);
-        return new MedicoResponseDTO(m.getEspecialidade().getId(), m.getDetalhes(), m.getUsuario().getId());
+        return new MedicoResponseDTO(m.getEspecialidade().getId(), m.getDetalhes(), m.getUsuario().getId(), m.getUsuario().getNome());
     }
 
     public MedicoEntity buscarEntidadePorId(Long id) {
@@ -68,7 +68,7 @@ public class MedicoService {
         EspecialidadeEntity especialidade = especialidadeService.buscarEntidadePorId(dto.getEspecialidadeId());
         MedicoEntity medico = new MedicoEntity(especialidade, dto.getDetalhes(), usuario);
         MedicoEntity salvo = medicoRepository.save(medico);
-        return new MedicoResponseDTO(salvo.getEspecialidade().getId(), salvo.getDetalhes(), salvo.getUsuario().getId());
+        return new MedicoResponseDTO(salvo.getEspecialidade().getId(), salvo.getDetalhes(), salvo.getUsuario().getId(), salvo.getUsuario().getNome());
     }
 
     @Transactional
@@ -88,7 +88,7 @@ public class MedicoService {
         medico.setEspecialidade(especialidade);
         medico.setDetalhes(dto.getDetalhes());
         MedicoEntity salvo = medicoRepository.save(medico);
-        return new MedicoResponseDTO(salvo.getEspecialidade().getId(), salvo.getDetalhes(), salvo.getUsuario().getId());
+        return new MedicoResponseDTO(salvo.getEspecialidade().getId(), salvo.getDetalhes(), salvo.getUsuario().getId(), salvo.getUsuario().getNome());
     }
 
     @Transactional

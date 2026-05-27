@@ -71,8 +71,8 @@ public class ConsultaService {
         }
 
         // 1. Busca as entidades no banco
-        PacienteEntity paciente = pacienteService.buscarPorId(dto.getPacienteId());
-        MedicoEntity medico = medicoService.buscarPorId(dto.getMedicoId());
+        PacienteEntity paciente = pacienteService.buscarEntidadePorId(dto.getPacienteId());
+        MedicoEntity medico = medicoService.buscarEntidadePorId(dto.getMedicoId());
 
         LocalDateTime dataInicio = dto.getDataHoraInicio();
         // Define o fim da consulta somando 30 minutos
