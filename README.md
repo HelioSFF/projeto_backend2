@@ -1,6 +1,15 @@
 # projeto_backend2
 Projeto de backend em spring.
 
+---
+
+# Equipe
+
+- Hélio Siqueira
+- Sabrina Holanda
+
+---
+
 # ClinMed API
 
 API REST para gerenciamento de clínica médica desenvolvida com Java e Spring Boot.
