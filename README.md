@@ -5,7 +5,7 @@ Projeto de backend em spring.
 
 # Equipe
 
-- Hélio Siqueira
+- Hélio de Siqueira
 - Sabrina Holanda
 
 ---
